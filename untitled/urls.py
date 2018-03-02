@@ -17,9 +17,13 @@ from django.contrib import admin
 from django.urls import path,include
 
 from posts import views
+from django.conf import settings
+from django.conf.urls.static import static
 # from accounts.views import login_view
 urlpatterns = [
     path('admin/', admin.site.urls),
    # path(r'^posts/',post_home),
     path('posts/', include('posts.urls')),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
