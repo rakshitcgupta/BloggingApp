@@ -1,15 +1,23 @@
-from django.shortcuts import render,get_object_or_404
-from django.http import HttpResponse
+from django.shortcuts import render,get_object_or_404,redirect
+from django.http import HttpResponse,HttpResponseRedirect, Http404
 from .models import Post
 from .forms import PostForm
+from django.contrib import messages
 # Create your views here.
 
 def post_create(request):
+    if not request.user.is_staff or not request.user.is_superuser:
+        raise Http404
     form = PostForm(request.POST or None)
     if form.is_valid():
         instance = form.save(commit=False)
         print(form.cleaned_data.get("title"))
         instance.save()
+        messages.success(request, "Successfully Created")
+        # return HttpResponseRedirect('/posts/detail/')
+        return HttpResponseRedirect(instance.get_absolute_url())
+    # else:
+    #     messages.error(request,"not successfully created")
     context = {
         "form":form,
     }
@@ -44,5 +52,8 @@ def post_list(request):
 def post_update(request):
     return HttpResponse("<h1>update</h1>")
 
-def post_delete(request):
-    return HttpResponse("<h1>delete</h1>")
+def post_delete(request,id=None):
+    instance = get_object_or_404(Post, id=id)
+    instance.delete()
+    messages.success(request, "Successfully deleted")
+    return redirect("posts:post_details")
