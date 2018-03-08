@@ -91,7 +91,7 @@ def post_delete(request,id=None):
 
 
 def select_category(request):
-    title = "Genere"
+    title = "Genre"
     button = "Save"
     form = CategoryForm(request.POST or None)
     if form.is_valid():
@@ -99,10 +99,11 @@ def select_category(request):
         # print(Select_Options)
         if request.user.is_authenticated:
             username = request.user.username
+        UsersCategories.objects.filter(user=username).delete()
         for i in Select_Options:
-            list = UsersCategories.objects.filter(user=username, category=i)
-            if (list.count() == 0):
-                category = UsersCategories(user=username, category=i)
-                category.save()
+            # list = UsersCategories.objects.filter(user=username, category=i)
+            # if (list.count() == 0):
+            category = UsersCategories(user=username, category=i)
+            category.save()
         return post_list(request)
     return render(request, "category.html", {'form': form, 'title': title, 'button':button})
