@@ -16,14 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 
-from posts import views
 from django.conf import settings
 from django.conf.urls.static import static
-# from accounts.views import login_view
+from accounts.views import (
+    login_view,
+    register_view,
+    logout_view)
 urlpatterns = [
     path('admin/', admin.site.urls),
    # path(r'^posts/',post_home),
-    path('posts/', include('posts.urls')),
+    path('', include('posts.urls')),
+    path('login/', login_view,name='login_view'),
+    path('logout/', logout_view,name='logout_view'),
+    path('register/', register_view,name='register_view'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

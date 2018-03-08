@@ -9,5 +9,14 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = [
             "title",
-            "content"
+            "content",
+            "category"
         ]
+
+
+class CategoryForm(forms.Form):
+    CHOICES = (('Tech', 'Tech'),
+               ('Food', 'Food'),
+               ('Sports', 'Sports'),
+               ('Fasion', 'Fasion'),)
+    Select_Options = forms.MultipleChoiceField(choices=CHOICES, widget=forms.CheckboxSelectMultiple())
