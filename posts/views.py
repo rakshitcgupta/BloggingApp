@@ -31,18 +31,21 @@ def post_detail(request,id=None):
         "title": instance.title,
         "instance": instance,
     }
+    # if request.user.is_authenticated:
+    #     return redirect()
     return render(request, "post_detail.html", context)
    # return HttpResponse("<h1>detail</h1>")
 
 def post_list(request):
     #return HttpResponse("<h1>list</h1>")
-    if not request.user.is_authenticated:
-        queryset=Post.objects.all()
-        context = {
-            "object_list": queryset,
-            "title": "List"
-        }
-    else:
+    # if not request.user.is_authenticated:
+    #     queryset=Post.objects.all()
+    #     context = {
+    #         "object_list": queryset,
+    #         "title": "List"
+    #     }
+    # else:
+    if request.user.is_authenticated:
         username = request.user.username
         obj = UsersCategories.objects.filter(user=username)
         queryset1 = Post.objects.none()
@@ -53,6 +56,9 @@ def post_list(request):
             "object_list": queryset1,
             "title": "List"
         }
+        return render(request, "post_list.html", context)
+    else:
+        return redirect("login/")
     # if request.user.is_authenticated():
     # 	context = {
     # 		"title": "My User List"
@@ -61,7 +67,6 @@ def post_list(request):
     # 	context = {
     # 		"title": "List"
     # 	}
-    return render(request,"post_list.html",context)
 
 # def post_list(request):
 #     #return HttpResponse("<h1>list</h1>")
@@ -105,5 +110,6 @@ def select_category(request):
             # if (list.count() == 0):
             category = UsersCategories(user=username, category=i)
             category.save()
-        return post_list(request)
+        # return post_list(request)
+        return redirect("/")
     return render(request, "category.html", {'form': form, 'title': title, 'button':button})

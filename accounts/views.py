@@ -36,7 +36,7 @@ def register_view(request):
         user.save()
         new_user = authenticate(username=user.username,password=password)
         login(request,new_user)
-        return redirect("category/")
+        return redirect("/category/")
     context = {
         "form":form,
         "title":title
