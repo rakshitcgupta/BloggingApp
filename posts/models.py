@@ -4,8 +4,16 @@ from django.conf import settings
 # Create your models here.
 class Post(models.Model):
     # user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    CATEGORY_CHOICES = (
+        ('Tech', 'Tech'),
+        ('Sports', 'Sports'),
+        ('Fashion', 'Fashion'),
+        ('Food', 'Food'),
+    )
+
     title = models.CharField(max_length=120)
-    category = models.CharField(max_length=128)
+    image = models.FileField(null=True,blank=True)
+    category = models.CharField(max_length=128,choices=CATEGORY_CHOICES)
     content = models.TextField()
     updated = models.DateTimeField(auto_now=True, auto_now_add=False)
     timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
