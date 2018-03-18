@@ -1,3 +1,4 @@
+from urllib.parse import quote_plus
 from django.shortcuts import render,get_object_or_404,redirect
 from django.http import HttpResponse,HttpResponseRedirect, Http404
 from .models import Post
@@ -27,9 +28,11 @@ def post_create(request):
 
 def post_detail(request,id=None):
     instance = get_object_or_404(Post, id=id)
+    share_string=quote_plus(instance.content)
     context = {
         "title": instance.title,
         "instance": instance,
+        "share_string":share_string
     }
     # if request.user.is_authenticated:
     #     return redirect()
