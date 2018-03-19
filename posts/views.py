@@ -6,6 +6,7 @@ from .models import UsersCategories
 from .forms import PostForm
 from .forms import CategoryForm
 from django.contrib import messages
+from django.db.models import Q
 # Create your views here.
 
 def post_create(request):
@@ -55,6 +56,13 @@ def post_list(request):
         for i in obj:
             queryset2 = Post.objects.filter(category=i.category)
             queryset1 = (queryset1 | queryset2)
+        query = request.GET.get("q")
+        if query:
+            queryset1=queryset1.filter(
+                Q(title__icontains=query)|
+                Q(content__icontains=query)
+                #auther ka baki hai
+            ).distinct()
         context = {
             "object_list": queryset1,
             "title": "List"
@@ -107,6 +115,7 @@ def select_category(request):
         # print(Select_Options)
         if request.user.is_authenticated:
             username = request.user.username
+
         UsersCategories.objects.filter(user=username).delete()
         for i in Select_Options:
             # list = UsersCategories.objects.filter(user=username, category=i)
