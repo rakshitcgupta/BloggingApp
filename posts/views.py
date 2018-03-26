@@ -7,6 +7,7 @@ from .forms import PostForm
 from .forms import CategoryForm
 from django.contrib import messages
 from django.db.models import Q
+from django.views.generic import RedirectView
 # Create your views here.
 
 def post_create(request):
@@ -30,6 +31,7 @@ def post_create(request):
 
 def post_detail(request,id=None):
     instance = get_object_or_404(Post, id=id)
+    print(id)
     share_string=quote_plus(instance.content)
     context = {
         "title": instance.title,
@@ -40,6 +42,27 @@ def post_detail(request,id=None):
     #     return redirect()
     return render(request, "post_detail.html", context)
    # return HttpResponse("<h1>detail</h1>")
+
+def post_like(request,id=None):
+    instance = get_object_or_404(Post, id=id)
+    url_=instance.get_absolute_url()
+    print(request.user)
+    user = request.user
+    if user.is_authenticated:
+        if user in instance.likes.all():
+            instance.likes.remove(user)
+        else:
+            instance.likes.add(user)
+
+    return HttpResponseRedirect(url_)
+
+
+#
+# class PostLikeRedirect(RedirectView):
+#     def get_redirect_url(self, *args, **kwargs):
+#         print(id)
+#         obj=get_object_or_404(Post,id=id)
+#         return obj.get_absolute_url()
 
 def post_list(request):
     #return HttpResponse("<h1>list</h1>")
