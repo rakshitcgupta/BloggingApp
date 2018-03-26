@@ -1,10 +1,11 @@
 from urllib.parse import quote_plus
 from django.shortcuts import render,get_object_or_404,redirect
 from django.http import HttpResponse,HttpResponseRedirect, Http404
-from .models import Post
+from .models import Post,Comment
 from .models import UsersCategories
 from .forms import PostForm
 from .forms import CategoryForm
+from .forms import CommentForm
 from django.contrib import messages
 from django.db.models import Q
 from django.views.generic import RedirectView
@@ -31,17 +32,36 @@ def post_create(request):
 
 def post_detail(request,id=None):
     instance = get_object_or_404(Post, id=id)
+    # comments = get_object_or_404(Comment,id=id)
     print(id)
     share_string=quote_plus(instance.content)
-    context = {
-        "title": instance.title,
-        "instance": instance,
-        "share_string":share_string
-    }
-    # if request.user.is_authenticated:
+    if request.user.is_authenticated:
+        obj = Comment.objects.filter(post=instance)
+
+        context = {
+            "title": instance.title,
+            "instance": instance,
+            "share_string":share_string,
+            "comments":obj
+        }
+        # if request.user.is_authenticated:
     #     return redirect()
-    return render(request, "post_detail.html", context)
+        return render(request, "post_detail.html", context)
    # return HttpResponse("<h1>detail</h1>")
+
+def add_comment_to_post(request, id=None):
+    post = get_object_or_404(Post, id=id)
+    if request.method == "POST":
+        form = CommentForm(request.POST or None)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            return redirect('post_detail', id=post.id)
+    else:
+        form = CommentForm()
+    return render(request, 'add_comment_to_post.html', {'form': form})
+
 
 def post_like(request,id=None):
     instance = get_object_or_404(Post, id=id)
