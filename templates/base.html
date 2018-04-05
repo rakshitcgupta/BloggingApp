@@ -17,12 +17,16 @@
 <div class="container">
 <ol class='breadcrumb'>
     {% if not request.user.is_authenticated %}
-        <li class="pull-right"><a href='{% url "register_view" %}'>Register</a> </li>
-        <li class='pull-right'><a href='{% url "login_view" %}'> Login</a></li>
+{#        <li class="breadcrumb-item pull-right active"><a href='{% url "register_view" %}'>Register</a> </li>#}
+        <li class='pull-left'><a href='{% url "login_view" %}'> Login</a></li>
+        <li><a href='{% url "register_view" %}'>Register</a> </li>
     {% else %}
         <li><a href="/">Home</a> </li>
         <li ><a href='{% url "post_create" %}'>Create Feed</a> </li>
-    <li ><a href='{% url "select_category" %}'>Profile</a> </li>
+        <li ><a href='{% url "select_category" %}'>Profile</a> </li>
+{#        <li ><a href='{% url "post_latest" %}'>Latest Stories</a> </li>#}
+        <li ><a href='{% url "post_popular" %}'>Trending</a> </li>
+{#        <li ><a href='{% url "post_myfeeds" %}'>Myfeeds</a> </li>#}
     <li class='pull-right'><a href='{% url "logout_view" %}'>Logout</a> </li>
     {% endif %}
 </ol>

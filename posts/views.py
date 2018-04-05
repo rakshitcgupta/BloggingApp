@@ -8,9 +8,19 @@ from .forms import CategoryForm
 from .forms import CommentForm
 from django.contrib import messages
 from django.db.models import Q
+from django.db.models import Count
 from django.views.generic import RedirectView
 # Create your views here.
-
+# def get_my_choices(request):
+#     # you place some logic here
+#     if request.user.is_authenticated:
+#         username = request.user.username
+#         obj = UsersCategories.objects.filter(user=username)
+#         queryset1 = Post.objects.none()
+#         choices_list=[]
+#         for i in obj:
+#             choices_list.append(i.category)
+#     return choices_list
 def post_create(request):
     # if not request.user.is_staff or not request.user.is_superuser:
     if not request.user.is_authenticated:
@@ -56,11 +66,12 @@ def add_comment_to_post(request, id=None):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.post = post
+            comment.user=request.user
             comment.save()
             return redirect('post_detail', id=post.id)
     else:
         form = CommentForm()
-    return render(request, 'add_comment_to_post.html', {'form': form})
+    return render(request, 'add_comment_to_post.html', {'form': form , 'button': "Save",})
 
 
 def post_like(request,id=None):
@@ -140,6 +151,73 @@ def post_list(request):
 #     # 	}
 #     return render(request,"post_list.html",context)
 
+def post_latest(request):
+    #return HttpResponse("<h1>list</h1>")
+    # if not request.user.is_authenticated:
+    #     queryset=Post.objects.all()
+    #     context = {
+    #         "object_list": queryset,
+    #         "title": "List"
+    #     }
+    # else:
+    if request.user.is_authenticated:
+        username = request.user.username
+        obj = UsersCategories.objects.filter(user=username)
+        queryset1 = Post.objects.none()
+        for i in obj:
+            queryset2 = Post.objects.filter(category=i.category)
+            queryset1 = (queryset1 | queryset2)
+        query = request.GET.get("q")
+        if query:
+            queryset1=queryset1.filter(
+                Q(title__icontains=query)|
+                Q(content__icontains=query)
+                #auther ka baki hai
+            ).distinct()
+        context = {
+            "object_list": queryset1.order_by('-timestamp'),
+            "title": "List"
+        }
+        return render(request, "post_list.html", context)
+    else:
+        return redirect("login/")
+
+
+def post_popular(request):
+    #return HttpResponse("<h1>list</h1>")
+    # if not request.user.is_authenticated:
+    #     queryset=Post.objects.all()
+    #     context = {
+    #         "object_list": queryset,
+    #         "title": "List"
+    #     }
+    # else:
+    if request.user.is_authenticated:
+        username = request.user.username
+        obj = UsersCategories.objects.filter(user=username)
+        queryset1 = Post.objects.none()
+        for i in obj:
+            queryset2 = Post.objects.filter(category=i.category)
+            queryset1 = (queryset1 | queryset2)
+        query = request.GET.get("q")
+        if query:
+            queryset1=queryset1.filter(
+                Q(title__icontains=query)|
+                Q(content__icontains=query)
+                #auther ka baki hai
+            ).distinct()
+        context = {
+            "object_list": queryset1.annotate(like_count=Count('likes')).order_by('-like_count'),
+            "title": "List"
+        }
+        return render(request, "post_list.html", context)
+    else:
+        return redirect("login/")
+
+
+
+
+
 def post_update(request):
     return HttpResponse("<h1>update</h1>")
 
@@ -153,19 +231,23 @@ def post_delete(request,id=None):
 def select_category(request):
     title = "Genre"
     button = "Save"
+    # if request.method == 'POST':
     form = CategoryForm(request.POST or None)
     if form.is_valid():
         Select_Options = form.cleaned_data.get('Select_Options')
         # print(Select_Options)
         if request.user.is_authenticated:
             username = request.user.username
-
-        UsersCategories.objects.filter(user=username).delete()
-        for i in Select_Options:
-            # list = UsersCategories.objects.filter(user=username, category=i)
-            # if (list.count() == 0):
-            category = UsersCategories(user=username, category=i)
-            category.save()
-        # return post_list(request)
-        return redirect("/")
+            UsersCategories.objects.filter(user=username).delete()
+            for i in Select_Options:
+                # list = UsersCategories.objects.filter(user=username, category=i)
+                # if (list.count() == 0):
+                category = UsersCategories(user=username, category=i)
+                category.save()
+            # return post_list(request)
+            return redirect("/")
+    # else:
+    #     obj = UsersCategories.objects.filter(user=request.user.username)
+    #     cat=obj.category
+    #     form = CategoryForm(cat)
     return render(request, "category.html", {'form': form, 'title': title, 'button':button})

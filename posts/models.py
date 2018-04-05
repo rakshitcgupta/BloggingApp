@@ -56,6 +56,7 @@ class UsersCategories(models.Model):
 class Comment(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,default=1,on_delete=models.CASCADE)
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL,default=1,on_delete=models.CASCADE)
     # many to one relationship
     post = models.ForeignKey(Post,on_delete=models.CASCADE)
     text = models.TextField()

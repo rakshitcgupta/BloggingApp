@@ -4,9 +4,13 @@ from django.urls import path,include
 from posts import views
 # from posts.views import PostLikeRedirect
 
+
 urlpatterns = [
+    path('', views.post_latest, name='post_latest'),
+
     path('', views.post_list,name='posts'),
     path('create/', views.post_create,name='post_create'),
+    path('popular/', views.post_popular,name='post_popular'),
     path('category/', views.select_category,name='select_category'),
     path('<int:id>/', views.post_detail, name='post_detail'),
     path('<int:id>/like', views.post_like, name='post_like'),
@@ -15,6 +19,5 @@ urlpatterns = [
     path('update', views.post_update),
     path('delete', views.post_delete),
 ]
-
 
 
